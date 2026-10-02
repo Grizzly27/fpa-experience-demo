@@ -7,7 +7,7 @@ import { useForecastStore } from '../../lib/useForecast';
 import { useBudgets } from '../../lib/budget';
 import { ago } from '../../lib/pipelines';
 import { Avatar, Badge } from '../ui/primitives';
-import { NAV } from './Sidebar';
+import { NAV, OWNER_NAV } from './Sidebar';
 
 const SUB: Record<string, string> = {
   forecast: 'Driver forecast', submissions: 'Cost center submissions',
@@ -37,7 +37,7 @@ function Popover({ open, children, className }: { open: boolean; children: React
 export function Topbar() {
   const { pathname } = useLocation();
   const [, section, sub] = pathname.split('/');
-  const nav = NAV.find((n) => n.to === `/${section ?? ''}`) ?? NAV[0];
+  const nav = [...NAV, OWNER_NAV].find((n) => n.to === `/${section ?? ''}`) ?? NAV[0];
   const setPalette = useApp((s) => s.setPalette);
 
   return (

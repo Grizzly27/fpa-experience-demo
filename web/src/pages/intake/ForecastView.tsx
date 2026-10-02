@@ -83,7 +83,7 @@ export function ForecastView() {
             <div className="h-48">
               <ResponsiveContainer>
                 <LineChart data={chart}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={tk.line} />
+                  <CartesianGrid vertical={false} stroke={tk.line} />
                   <XAxis dataKey="month" tick={{ fontSize: 11, fill: tk['fg-muted'] }} stroke={tk['line-strong']} />
                   <YAxis tickFormatter={(v) => money(v)} tick={{ fontSize: 11, fill: tk['fg-muted'] }} stroke={tk['line-strong']} width={55} />
                   <Tooltip formatter={(v) => money(Number(v), { compact: false })} contentStyle={{ background: tk.surface, border: `1px solid ${tk.line}`, borderRadius: 6, fontSize: 12 }} />

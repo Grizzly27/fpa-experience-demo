@@ -67,7 +67,7 @@ export function VarianceView() {
         <div className="h-72">
           <ResponsiveContainer>
             <ComposedChart data={monthly} onClick={(e) => pickMonth(monthly[Number(e?.activeTooltipIndex)]?.month)}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={tk.line} />
+              <CartesianGrid vertical={false} stroke={tk.line} />
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: tk['fg-muted'] }} stroke={tk['line-strong']} />
               <YAxis tickFormatter={(v) => money(v)} tick={{ fontSize: 11, fill: tk['fg-muted'] }} stroke={tk['line-strong']} width={60} />
               <Tooltip formatter={(v) => money(Number(v), { compact: false })} cursor={{ fill: tk.line, opacity: 0.4 }} contentStyle={{ background: tk.surface, border: `1px solid ${tk.line}`, borderRadius: 6, fontSize: 12 }} />

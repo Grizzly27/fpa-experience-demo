@@ -4,7 +4,7 @@ import { clsx } from 'clsx';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, CornerDownLeft, LogOut, Monitor, Moon, Search, Sun, UserCog, type LucideIcon } from 'lucide-react';
 import { PERSONAS, ROLE_LABEL, useApp } from '../../lib/app';
-import { NAV } from './Sidebar';
+import { NAV, OWNER_NAV } from './Sidebar';
 
 interface Cmd { id: string; label: string; group: string; icon: LucideIcon; hint?: string; run: () => void }
 
@@ -55,7 +55,7 @@ export function CommandPalette() {
   const cmds = useMemo<Cmd[]>(() => {
     const go = (to: string) => () => { navigate(to); setOpen(false); };
     return [
-      ...NAV.map((n) => ({ id: n.to, label: n.label, group: 'Go to', icon: n.icon, hint: n.description, run: go(n.to) })),
+      ...[...NAV, OWNER_NAV].map((n) => ({ id: n.to, label: n.label, group: 'Go to', icon: n.icon, hint: n.description, run: go(n.to) })),
       ...SUBPAGES.map(([to, label, parent]) => ({ id: to, label, group: 'Go to', icon: ArrowRight, hint: parent, run: go(to) })),
       ...PERSONAS.map((p) => ({ id: `as-${p.id}`, label: `View as ${p.name}`, group: 'Demo', icon: UserCog, hint: `${ROLE_LABEL[p.role]} · ${p.title}`, run: () => { setPersona(p.id); setOpen(false); } })),
       { id: 'light', label: 'Light theme', group: 'Preferences', icon: Sun, run: () => { setTheme('light'); setOpen(false); } },

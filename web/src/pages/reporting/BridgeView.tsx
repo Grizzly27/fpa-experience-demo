@@ -52,7 +52,7 @@ export function BridgeView() {
         <div className="h-[360px]">
           <ResponsiveContainer>
             <BarChart key={period.id} data={data} margin={{ top: 28, right: 8, left: 8, bottom: 4 }}>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" stroke={tk.line} />
+              <CartesianGrid vertical={false} stroke={tk.line} />
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: tk['fg-muted'] }} stroke={tk['line-strong']} interval={0} />
               <YAxis tickFormatter={(v) => money(v)} tick={{ fontSize: 11, fill: tk['fg-muted'] }} stroke={tk['line-strong']} width={60} domain={[Math.floor(min * 0.96 / 1e6) * 1e6, 'auto']} allowDataOverflow />
               <Tooltip cursor={{ fill: tk.line, opacity: 0.35 }}

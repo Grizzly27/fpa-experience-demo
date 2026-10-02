@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
+import { trackAction } from './analytics';
 import { DEFAULT_ASSUMPTIONS, runForecast, type Assumptions, type Overrides } from './forecast';
 
 export interface LogEntry {
@@ -136,6 +137,8 @@ interface Store { state: State; dispatch: (a: Action) => void }
 export const useForecastStore = create<Store>((set) => ({
   state: initial(),
   dispatch: (a) => set((s) => {
+    if (a.type === 'cells' || a.type === 'batch' || a.type === 'assumption') trackAction('forecast_edit');
+    else if (a.type === 'saveVersion') trackAction('forecast_version');
     const state = reducer(s.state, a);
     try {
       const { assumptions, overrides, log, versions } = state;

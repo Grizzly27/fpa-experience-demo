@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { MotionConfig } from 'framer-motion';
 import { Sidebar } from './components/shell/Sidebar';
@@ -6,6 +6,9 @@ import { Topbar } from './components/shell/Topbar';
 import { CommandPalette } from './components/shell/CommandPalette';
 import { SignIn } from './components/shell/SignIn';
 import { useApp, useThemeEffect } from './lib/app';
+import { initAnalytics, trackPage } from './lib/analytics';
+
+initAnalytics();
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const IntakePage = lazy(() => import('./pages/IntakePage'));
@@ -13,6 +16,7 @@ const ActualsPage = lazy(() => import('./pages/ActualsPage'));
 const ReportingPage = lazy(() => import('./pages/ReportingPage'));
 const AssistantPage = lazy(() => import('./pages/AssistantPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
+const TrafficPage = lazy(() => import('./pages/TrafficPage'));
 
 function Loading() {
   return (
@@ -26,6 +30,7 @@ function Loading() {
 
 function Shell() {
   const { pathname } = useLocation();
+  useEffect(() => { trackPage(pathname); }, [pathname]);
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -40,6 +45,7 @@ function Shell() {
               <Route path="/reporting/*" element={<ReportingPage />} />
               <Route path="/assistant" element={<AssistantPage />} />
               <Route path="/admin/*" element={<AdminPage />} />
+              <Route path="/traffic" element={<TrafficPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
@@ -53,6 +59,7 @@ function Shell() {
 export default function App() {
   useThemeEffect();
   const signedIn = useApp((s) => s.signedIn);
+  useEffect(() => { if (!signedIn) trackPage('/sign-in'); }, [signedIn]);
   return (
     <MotionConfig reducedMotion="user">
       <HashRouter>{signedIn ? <Shell /> : <SignIn />}</HashRouter>

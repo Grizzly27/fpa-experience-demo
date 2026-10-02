@@ -64,7 +64,7 @@ function DemoBanner() {
               <span className="inline-flex items-center gap-2 text-sm font-semibold text-warn"><FlaskConical size={16} aria-hidden /> You're exploring a demo</span>
               <span className="text-xs text-fg-muted">This shows what a custom FP&amp;A platform on AWS can look like. Nothing here is a real company or real data.</span>
               <div className="flex flex-wrap gap-1.5">
-                {['Fictional company', 'Synthetic data', 'Simulated SSO', 'Runs in your browser'].map((t) => <Badge key={t}>{t}</Badge>)}
+                {['Fictional company', 'Synthetic data', 'Simulated SSO', 'Basic usage analytics'].map((t) => <Badge key={t}>{t}</Badge>)}
               </div>
               <button onClick={dismiss} className="btn-ghost ml-auto h-7 w-7 p-0" aria-label="Dismiss demo notice"><X size={15} /></button>
             </div>

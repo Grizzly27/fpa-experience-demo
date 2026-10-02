@@ -3,6 +3,7 @@ import { COST_CENTERS, GL, LAST_ACTUAL } from './data';
 import { runForecast } from './forecast';
 import { loadSavedForecast } from './useForecast';
 import { can, canEditCostCenter, type Persona } from './app';
+import { trackAction, type ActionName } from './analytics';
 
 export type Status = 'draft' | 'submitted' | 'approved' | 'rejected' | 'locked';
 export interface HistoryItem { action: string; by: string; at: number; comment?: string }
@@ -106,6 +107,7 @@ export const useBudgets = create<Store>((set, get) => {
     act: (p, cc, t, comment) => {
       const b = get().budgets;
       if (!allowed(p, cc, t, b[cc].status)) return;
+      if (t.action !== 'reopen') trackAction(`budget_${t.action}` as ActionName);
       save({ ...b, [cc]: { ...b[cc], status: t.to, history: [...b[cc].history, { action: t.action, by: p.name, at: Date.now(), comment: comment?.trim() || undefined }] } });
     },
     reset: () => save(seed()),

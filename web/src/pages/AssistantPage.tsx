@@ -9,6 +9,7 @@ import { TypingBuddy, type BuddyState } from '../components/assistant/TypingBudd
 import { Markdown } from '../components/assistant/Markdown';
 import { usePersona } from '../lib/app';
 import { LAST_ACTUAL, monthLabel } from '../lib/data';
+import { trackAction } from '../lib/analytics';
 
 interface Answers { model: string; generated: string; answers: { question: string; answer: string }[] }
 // answers.json is produced by data/gen_answers.py (Claude on Amazon Bedrock). Optional at build time.
@@ -65,6 +66,7 @@ export default function AssistantPage() {
     const question = q.trim();
     if (!question || busy) return;
     clearTimeout(idleTimer.current);
+    trackAction('assistant_question');
     const id = Date.now();
     setMsgs((m) => [...m, { id: id - 1, role: 'user', text: question }]);
     setInput('');

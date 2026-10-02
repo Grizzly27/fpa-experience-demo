@@ -5,6 +5,7 @@ import { CalendarClock, ChevronDown, Download, FileSpreadsheet, Users, Wallet, W
 import { Badge } from '../../components/ui/primitives';
 import { rise, stagger } from '../../components/motion';
 import { COST_CENTERS, DRIVERS, GL, LAST_ACTUAL, money, monthLabel } from '../../lib/data';
+import { trackAction } from '../../lib/analytics';
 
 type Table = { head: string[]; rows: (string | number)[][] };
 
@@ -49,6 +50,7 @@ export function LibraryView() {
   const [open, setOpen] = useState<string | null>(null);
   const [scheduled, setScheduled] = useState<Set<string>>(new Set(['pnl']));
   const download = (id: string, t: Table) => {
+    trackAction('export_csv');
     const url = URL.createObjectURL(new Blob([toCsv(t)], { type: 'text/csv' }));
     Object.assign(document.createElement('a'), { href: url, download: `${id}_${LAST_ACTUAL}.csv` }).click();
     URL.revokeObjectURL(url);

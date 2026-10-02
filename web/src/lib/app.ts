@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { create } from 'zustand';
 import { COST_CENTERS } from './data';
+import { trackAction, trackPersona } from './analytics';
 
 export type Role = 'analyst' | 'approver' | 'admin';
 
@@ -81,12 +82,15 @@ export const useApp = create<AppState>((set, get) => {
     navCollapsed: saved.navCollapsed ?? false,
     bannerDismissed: saved.bannerDismissed ?? false,
     paletteOpen: false,
-    signIn: (personaId) => upd({ signedIn: true, personaId }),
+    signIn: (personaId) => { upd({ signedIn: true, personaId }); trackPersona(PERSONAS.find((p) => p.id === personaId)?.role ?? 'unknown'); },
     signOut: () => upd({ signedIn: false }),
-    setPersona: (personaId) => upd({ personaId }),
-    setTheme: (theme) => upd({ theme }),
+    setPersona: (personaId) => {
+      if (personaId !== get().personaId) { trackAction('switch_persona'); trackPersona(PERSONAS.find((p) => p.id === personaId)?.role ?? 'unknown'); }
+      upd({ personaId });
+    },
+    setTheme: (theme) => { trackAction('theme_toggle'); upd({ theme }); },
     toggleNav: () => upd({ navCollapsed: !get().navCollapsed }),
-    setPalette: (paletteOpen) => set({ paletteOpen }),
+    setPalette: (paletteOpen) => { if (paletteOpen) trackAction('command_palette'); set({ paletteOpen }); },
     dismissBanner: () => upd({ bannerDismissed: true }),
   };
 });

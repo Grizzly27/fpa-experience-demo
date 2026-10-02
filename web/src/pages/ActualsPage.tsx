@@ -9,6 +9,7 @@ import { Card } from '../components/ui/Card';
 import { AccessNote, Badge, PageHeader, STATUS_TONE, Stat, Tabs } from '../components/ui/primitives';
 import { DrawCheck, EASE, Page, rise, stagger } from '../components/motion';
 import { can, usePersona } from '../lib/app';
+import { trackAction } from '../lib/analytics';
 import { COST_CENTERS, GL, LAST_ACTUAL, money, monthLabel } from '../lib/data';
 import { ACCOUNT_MAP, CLOSE_CALENDAR, DQ_CHECKS, RUNS, ago, type Run } from '../lib/pipelines';
 
@@ -144,7 +145,7 @@ function LoadsView() {
 
       <Card title="Pipeline run" description="Trigger an on-demand load. The same job runs on schedule in AWS Glue."
         actions={admin
-          ? <button className="btn-primary" onClick={() => setStage(0)} disabled={stage >= 0}>{stage >= 0 ? <Loader2 size={15} className="animate-spin" /> : <Play size={15} />}{stage >= 0 ? 'Running…' : 'Run GL load now'}</button>
+          ? <button className="btn-primary" onClick={() => { trackAction('run_load'); setStage(0); }} disabled={stage >= 0}>{stage >= 0 ? <Loader2 size={15} className="animate-spin" /> : <Play size={15} />}{stage >= 0 ? 'Running…' : 'Run GL load now'}</button>
           : <AccessNote>Administrators can trigger loads</AccessNote>}>
         <ol className="grid gap-2 sm:grid-cols-3 xl:grid-cols-6" aria-live="polite">
           {STAGES.map((s, i) => {
@@ -311,6 +312,7 @@ function LedgerView() {
   const pages = Math.max(1, Math.ceil(rows.length / PAGE));
 
   const exportCsv = () => {
+    trackAction('export_csv');
     const head = 'month,department,account,account_group,amount\n';
     const body = rows.map((r) => [r.month, r.department, r.account, r.account_group, r.amount.toFixed(2)].map((v) => `"${v}"`).join(',')).join('\n');
     const url = URL.createObjectURL(new Blob([head + body], { type: 'text/csv' }));

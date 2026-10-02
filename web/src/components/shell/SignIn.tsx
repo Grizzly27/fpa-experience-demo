@@ -1,54 +1,47 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ArrowRight, Building2, Info, KeyRound, Loader2, ShieldCheck } from 'lucide-react';
+import { Activity, ArrowRight, Info, KeyRound, Loader2, ShieldCheck } from 'lucide-react';
+import { submitLead } from '../../lib/analytics';
+import { Unauthorized, useOwner } from '../../lib/owner';
 import { PERSONAS, ROLE_LABEL, useApp, type Persona } from '../../lib/app';
 import { Avatar, Badge } from '../ui/primitives';
 import { DrawCheck, EASE } from '../motion';
 
-type Step = 'email' | 'identity' | 'handshake';
+type Step = 'start' | 'handshake' | 'owner';
+const EMAIL_RE = /^[^@\s]{1,64}@[^@\s]{1,120}\.[a-z]{2,24}$/i;
 
 export function SignIn() {
   const signIn = useApp((s) => s.signIn);
-  const [step, setStep] = useState<Step>('email');
-  const [email, setEmail] = useState('jordan.lee@northwind.example');
+  const [step, setStep] = useState<Step>('start');
   const [who, setWho] = useState<Persona | null>(null);
-  const domain = email.split('@')[1] || 'northwind.example';
+  const [email, setEmail] = useState('');
+  const [touched, setTouched] = useState(false);
+  const valid = EMAIL_RE.test(email.trim());
+
+  const enterWithEmail = (e: React.FormEvent) => {
+    e.preventDefault();
+    setTouched(true);
+    if (!valid) return;
+    submitLead(email);
+    signIn('jordan');
+  };
 
   return (
     <div className="grid min-h-screen bg-bg lg:grid-cols-[1.1fr_1fr]">
       <BrandPanel />
       <main className="flex items-center justify-center p-6">
-        <div className="w-full max-w-[400px]">
+        <div className="w-full max-w-[420px]">
           <div className="mb-6 flex items-center gap-2 lg:hidden">
             <Logo /> <span className="font-semibold">Custom FP&amp;A Experience</span>
           </div>
           <AnimatePresence mode="wait">
-            {step === 'email' && (
-              <Panel key="email">
-                <h1 className="text-xl font-semibold tracking-tight">Sign in to Custom FP&amp;A Experience</h1>
-                <p className="mt-1 text-sm text-fg-muted">Use your work email. We'll send you to your company's identity provider.</p>
-                <form className="mt-6 space-y-3" onSubmit={(e) => { e.preventDefault(); setStep('identity'); }}>
-                  <label className="block">
-                    <span className="mb-1 block text-xs font-medium text-fg-muted">Work email</span>
-                    <input className="input h-10" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="off" required />
-                  </label>
-                  <button className="btn-primary h-10 w-full">Continue with SSO <ArrowRight size={16} /></button>
-                </form>
-                <div className="mt-6 flex items-start gap-2 rounded-md bg-surface-2 p-3 text-xs text-fg-muted">
-                  <Info size={14} className="mt-0.5 shrink-0" aria-hidden />
-                  <span><b className="text-fg">Demo environment.</b> SSO is simulated and nothing leaves your browser. In production this federates through Amazon Cognito to Okta, Microsoft Entra ID or Google Workspace via SAML 2.0 / OIDC.</span>
-                </div>
-              </Panel>
-            )}
+            {step === 'start' && (
+              <Panel key="start">
+                <h1 className="text-xl font-semibold tracking-tight">Explore the demo</h1>
+                <p className="mt-1 text-sm text-fg-muted">Pick a demo user to see how access changes by role, or enter your email to jump right in.</p>
 
-            {step === 'identity' && (
-              <Panel key="identity">
-                <div className="flex items-center gap-2 text-xs text-fg-muted">
-                  <Building2 size={14} aria-hidden /> <span className="font-medium text-fg">{domain}</span> uses <Badge tone="accent">SAML 2.0</Badge>
-                </div>
-                <h1 className="mt-3 text-xl font-semibold tracking-tight">Choose a demo identity</h1>
-                <p className="mt-1 text-sm text-fg-muted">Your IdP would decide this. Each identity carries different groups, so you'll see different access.</p>
-                <div className="mt-5 space-y-2">
+                <p className="eyebrow mt-6 mb-2">Select a user</p>
+                <div className="space-y-2">
                   {PERSONAS.map((p, i) => (
                     <motion.button
                       key={p.id}
@@ -66,19 +59,78 @@ export function SignIn() {
                     </motion.button>
                   ))}
                 </div>
-                <button onClick={() => setStep('email')} className="btn-ghost mt-4 px-0 text-xs">Use a different email</button>
+
+                <div className="my-5 flex items-center gap-3 text-2xs font-semibold uppercase tracking-[0.08em] text-fg-subtle">
+                  <span className="h-px flex-1 bg-line" /> or <span className="h-px flex-1 bg-line" />
+                </div>
+
+                <form onSubmit={enterWithEmail} noValidate>
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-medium text-fg-muted">Enter your email to learn more</span>
+                    <div className="flex gap-2">
+                      <input className={`input h-10 flex-1 ${touched && !valid ? 'border-neg focus:border-neg focus:ring-neg/25' : ''}`} type="email" inputMode="email" autoComplete="email"
+                        placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={() => email && setTouched(true)}
+                        aria-invalid={touched && !valid} aria-describedby="email-help" />
+                      <button className="btn-primary h-10 shrink-0" disabled={!email.trim()}>Continue <ArrowRight size={16} /></button>
+                    </div>
+                  </label>
+                  <p id="email-help" className={`mt-1.5 text-xs ${touched && !valid ? 'text-neg' : 'text-fg-subtle'}`}>
+                    {touched && !valid ? 'Enter a valid email, or pick a demo user above.' : 'Optional. Shared only with the creator of this demo so they can follow up. Never used for anything else.'}
+                  </p>
+                </form>
+
+                <div className="mt-5 flex items-start gap-2 rounded-md bg-surface-2 p-3 text-xs text-fg-muted">
+                  <Info size={14} className="mt-0.5 shrink-0" aria-hidden />
+                  <span><b className="text-fg">Demo environment.</b> Sign-in is simulated; in production users sign in through their company SSO (SAML 2.0 / OIDC via Amazon Cognito). This site collects basic usage analytics (pages viewed, approximate location, device); Do Not Track is honored.</span>
+                </div>
+                <button onClick={() => setStep('owner')} className="btn-ghost mt-2 w-full text-xs"><Activity size={14} />Site owner? View traffic</button>
+              </Panel>
+            )}
+
+            {step === 'owner' && (
+              <Panel key="owner">
+                <OwnerSignIn onBack={() => setStep('start')} onDone={() => { signIn('sam'); window.location.hash = '#/traffic'; }} />
               </Panel>
             )}
 
             {step === 'handshake' && who && (
               <Panel key="handshake">
-                <Handshake persona={who} domain={domain} onDone={() => signIn(who.id)} />
+                <Handshake persona={who} domain="northwind.example" onDone={() => signIn(who.id)} />
               </Panel>
             )}
           </AnimatePresence>
         </div>
       </main>
     </div>
+  );
+}
+
+function OwnerSignIn({ onBack, onDone }: { onBack: () => void; onDone: () => void }) {
+  const unlock = useOwner((s) => s.unlock);
+  const [value, setValue] = useState('');
+  const [state, setState] = useState<'idle' | 'checking' | 'bad' | 'error'>('idle');
+  return (
+    <form onSubmit={async (e) => {
+      e.preventDefault();
+      setState('checking');
+      try { await unlock(value); onDone(); } catch (err) { setState(err instanceof Unauthorized ? 'bad' : 'error'); }
+    }}>
+      <div className="grid h-10 w-10 place-items-center rounded-full bg-accent-soft text-accent"><Activity size={18} aria-hidden /></div>
+      <h1 className="mt-3 text-xl font-semibold tracking-tight">Site owner sign-in</h1>
+      <p className="mt-1 text-sm text-fg-muted">Opens the private Traffic dashboard. The passphrase is verified by the server and kept only for this tab.</p>
+      <label className="mt-5 block">
+        <span className="mb-1 block text-xs font-medium text-fg-muted">Passphrase</span>
+        <input type="password" autoComplete="current-password" className="input h-10" value={value} autoFocus
+          onChange={(e) => { setValue(e.target.value); if (state !== 'checking') setState('idle'); }} aria-invalid={state === 'bad'} aria-describedby="owner-msg" />
+      </label>
+      <p id="owner-msg" role="alert" className="mt-1.5 min-h-[18px] text-xs text-neg">
+        {state === 'bad' && 'That passphrase was not accepted.'}{state === 'error' && 'Could not reach the analytics service.'}
+      </p>
+      <button className="btn-primary mt-2 h-10 w-full" disabled={!value || state === 'checking'}>
+        {state === 'checking' ? <Loader2 size={16} className="animate-spin" /> : <KeyRound size={16} />} Sign in
+      </button>
+      <button type="button" onClick={onBack} className="btn-ghost mt-3 px-0 text-xs">Back to demo sign-in</button>
+    </form>
   );
 }
 

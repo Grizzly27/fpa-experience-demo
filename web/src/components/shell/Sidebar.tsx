@@ -2,10 +2,11 @@ import { NavLink } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { motion } from 'framer-motion';
 import {
-  BarChart3, ChevronsLeft, ChevronsRight, Database, FilePenLine, Home, Lock, ShieldCheck, Sparkles, type LucideIcon,
+  Activity, BarChart3, ChevronsLeft, ChevronsRight, Database, FilePenLine, Home, Lock, ShieldCheck, Sparkles, type LucideIcon,
 } from 'lucide-react';
 import { can, useApp, usePersona } from '../../lib/app';
 import { Logo } from './SignIn';
+import { useOwner } from '../../lib/owner';
 import { useBudgets, TRANSITIONS, allowed } from '../../lib/budget';
 import { COST_CENTERS } from '../../lib/data';
 
@@ -19,6 +20,8 @@ export const NAV: NavItem[] = [
   { to: '/assistant', label: 'AI Assistant', icon: Sparkles, description: 'Ask questions about plan vs actuals' },
   { to: '/admin', label: 'Admin Portal', icon: ShieldCheck, description: 'Users, roles, SSO, cycles, integrations, audit' },
 ];
+
+export const OWNER_NAV: NavItem = { to: '/traffic', label: 'Traffic', icon: Activity, description: 'Site owner: visitors and engagement' };
 
 /** Number of submissions waiting on the current persona. */
 export function useMyQueue() {
@@ -34,6 +37,7 @@ export function Sidebar() {
   const queue = useMyQueue();
   const budgets = useBudgets((s) => s.budgets);
   const approved = COST_CENTERS.filter((cc) => ['approved', 'locked'].includes(budgets[cc].status)).length;
+  const owner = useOwner((s) => !!s.key);
 
   return (
     <aside
@@ -84,6 +88,21 @@ export function Sidebar() {
             </NavLink>
           );
         })}
+        {owner && (
+          <>
+            {!collapsed && <p className="px-2.5 pb-1 pt-4 text-2xs font-semibold uppercase tracking-[0.08em] text-nav-muted">Site owner</p>}
+            <NavLink to={OWNER_NAV.to} title={collapsed ? OWNER_NAV.label : undefined}
+              className={({ isActive }) => clsx('group relative flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium transition-colors duration-150',
+                isActive ? 'bg-nav-2 text-white' : 'text-nav-muted hover:bg-white/5 hover:text-white', collapsed && 'justify-center')}>
+              {({ isActive }) => (<>
+                {isActive && <motion.span layoutId="nav-active" transition={{ type: 'spring', stiffness: 500, damping: 40 }} className="absolute inset-y-1.5 left-0 w-[3px] rounded-r bg-[#3B82F6]" aria-hidden />}
+                <OWNER_NAV.icon size={18} aria-hidden className="shrink-0" />
+                {!collapsed && <span className="flex-1">{OWNER_NAV.label}</span>}
+                <span className="relative flex h-2 w-2" aria-hidden><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#4ADE80] opacity-60" /><span className="relative h-2 w-2 rounded-full bg-[#4ADE80]" /></span>
+              </>)}
+            </NavLink>
+          </>
+        )}
       </nav>
 
       {!collapsed && (
