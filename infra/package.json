@@ -1,0 +1,7 @@
+{
+  "name": "fpa-experience-demo-infra",
+  "private": true,
+  "scripts": { "cdk": "cdk", "synth": "cdk synth", "deploy": "cdk deploy --require-approval never" },
+  "dependencies": { "aws-cdk-lib": "^2.200.0", "constructs": "^10.4.2" },
+  "devDependencies": { "aws-cdk": "^2.1029.2", "ts-node": "^10.9.2", "typescript": "~5.8.3", "@types/node": "^24.6.2" }
+}

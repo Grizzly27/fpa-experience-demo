@@ -1,0 +1,135 @@
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-sans/700.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Semantic tokens (RGB channels). Text tokens meet WCAG 4.5:1 on their surfaces. */
+@layer base {
+  :root {
+    --bg: 246 248 251;
+    --surface: 255 255 255;
+    --surface-2: 241 245 249;
+    --surface-3: 226 232 240;
+    --line: 226 232 240;
+    --line-strong: 203 213 225;
+    --fg: 15 23 42;
+    --fg-muted: 71 85 105;
+    --fg-subtle: 100 116 139;
+    --accent: 37 99 235;
+    --accent-hover: 29 78 216;
+    --accent-soft: 219 234 254;
+    --accent-fg: 255 255 255;
+    --pos: 21 128 61;
+    --pos-soft: 220 252 231;
+    --neg: 185 28 28;
+    --neg-soft: 254 226 226;
+    --warn: 180 83 9;
+    --warn-soft: 254 243 199;
+    --info: 3 105 161;
+    --info-soft: 224 242 254;
+    --edit-bg: 254 249 225;
+    --edit-fg: 120 53 15;
+    --edit-line: 245 158 11;
+    --nav: 15 23 42;
+    --nav-2: 30 41 59;
+    --nav-fg: 241 245 249;
+    --nav-muted: 148 163 184;
+    --chart-1: 37 99 235;
+    --chart-2: 148 163 184;
+    --chart-3: 21 128 61;
+    --chart-4: 185 28 28;
+    color-scheme: light;
+  }
+
+  [data-theme='dark'] {
+    --bg: 2 6 23;
+    --surface: 14 18 35;
+    --surface-2: 26 30 47;
+    --surface-3: 39 45 66;
+    --line: 39 47 68;
+    --line-strong: 51 65 85;
+    --fg: 248 250 252;
+    --fg-muted: 148 163 184;
+    --fg-subtle: 133 146 166;
+    --accent: 96 165 250;
+    --accent-hover: 147 197 253;
+    --accent-soft: 23 37 84;
+    --accent-fg: 2 6 23;
+    --pos: 74 222 128;
+    --pos-soft: 5 46 22;
+    --neg: 248 113 113;
+    --neg-soft: 69 10 10;
+    --warn: 251 191 36;
+    --warn-soft: 66 32 6;
+    --info: 56 189 248;
+    --info-soft: 8 47 73;
+    --edit-bg: 58 44 10;
+    --edit-fg: 253 230 138;
+    --edit-line: 217 119 6;
+    --nav: 8 11 26;
+    --nav-2: 22 27 46;
+    --nav-fg: 241 245 249;
+    --nav-muted: 148 163 184;
+    --chart-1: 96 165 250;
+    --chart-2: 100 116 139;
+    --chart-3: 74 222 128;
+    --chart-4: 248 113 113;
+    color-scheme: dark;
+  }
+
+  html, body { @apply bg-bg text-fg; }
+  body {
+    @apply font-sans antialiased text-sm;
+    font-feature-settings: 'tnum' 1, 'cv01' 1;
+  }
+  *:focus-visible { @apply outline-none ring-2 ring-accent ring-offset-1 ring-offset-surface; }
+  button, [role='button'], a, summary, select { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+}
+
+@layer components {
+  .num { font-variant-numeric: tabular-nums; }
+  .eyebrow { @apply text-2xs font-semibold uppercase tracking-[0.08em] text-fg-subtle; }
+  .input {
+    @apply w-full rounded-md border border-line-strong bg-surface px-3 py-1.5 text-sm text-fg placeholder:text-fg-subtle
+      transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium
+      transition-colors duration-150 disabled:opacity-45 active:translate-y-px;
+  }
+  .btn-primary { @apply btn bg-accent text-accent-fg hover:bg-accent-hover; }
+  .btn-secondary { @apply btn border border-line-strong bg-surface text-fg hover:bg-surface-2; }
+  .btn-ghost { @apply btn text-fg-muted hover:bg-surface-2 hover:text-fg; }
+  .btn-danger { @apply btn border border-neg/40 bg-surface text-neg hover:bg-neg-soft; }
+  .btn-success { @apply btn bg-pos text-surface hover:opacity-90; }
+}
+
+/* Recalculated cells flash so users see what their edit moved */
+@keyframes flash {
+  0% { background-color: rgb(var(--accent) / 0.16); }
+  100% { background-color: transparent; }
+}
+.animate-flash { animation: flash 900ms ease-out; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgb(var(--line-strong)); border-radius: 8px; border: 2px solid rgb(var(--bg)); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Marching dashes for data-flow edges */
+@keyframes dash { to { stroke-dashoffset: -20; } }
+.flow-dash { stroke-dasharray: 4 6; animation: dash 1.4s linear infinite; }

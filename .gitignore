@@ -1,0 +1,6 @@
+node_modules/
+dist/
+cdk.out/
+infra/build/
+data/out/
+__pycache__/
